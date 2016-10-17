@@ -15,9 +15,15 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
+
+/* Root route: */
+
 app.get('/', function(req, res) {
     res.send('Happy to be here');
 });
+
+
+/* Get method: */
 
 app.get('/books', function(req, res) {
     console.log('Retrieving books');
@@ -31,6 +37,9 @@ app.get('/books', function(req, res) {
             }
         });
 });
+
+
+/* Get by ID method: */
 
 app.get('/books/:id', function(req, res) {
     console.log('Retrieving the specified book');
@@ -46,6 +55,9 @@ app.get('/books/:id', function(req, res) {
             }
         });
 });
+
+
+/* Post method: */
 
 app.post('/book', function(req, res) {
     var newBook = new Book();
@@ -64,6 +76,9 @@ app.post('/book', function(req, res) {
     });
 });
 
+
+/* Post method 2: */
+
 app.post('/book2', function(req, res) {
     Book.create(req.body, function(err, book) {
         if (err) {
@@ -74,6 +89,46 @@ app.post('/book2', function(req, res) {
         }
     });
 });
+
+
+/* Update method: */
+
+app.put('/book/:id', function(req, res) {
+    Book.findOneAndUpdate({
+        _id: req.params.id
+    }, {
+        $set: {
+            title: req.body.title
+        }
+    }, {
+        upsert: true
+    }, function(err, newBook) {
+        if (err) {
+            res.send('Error with book update: ' + err);
+        } else {
+            console.log('Successfully updated book: ' + newBook);
+            res.send(newBook);
+        }
+    });
+});
+
+
+/* Delete method: */
+
+app.delete('/book/:id', function(req, res) {
+    Book.findOneAndRemove({
+        _id: req.params.id
+    }, function(err, newBook) {
+        if (err) {
+            res.send('Error with book deletion: ' + err);
+        } else {
+            console.log('Successfully deleted book: ' + newBook);
+            res.status(204);
+        }
+    });
+});
+
+
 
 app.listen(port, function() {
     console.log('App listening on port: ' + port);
